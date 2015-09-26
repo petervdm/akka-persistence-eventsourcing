@@ -48,30 +48,27 @@ class VehicleRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers wi
 
   it should "create a vehicle" in {
     val regNumber = "123"
-    val color = "Cerulean"
-    Post("/vehicles", Map("regNumber" -> regNumber, "color" -> color)) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
+    Post("/vehicles", Map("regNumber" -> regNumber)) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
       response.status shouldBe StatusCodes.Created
       val id = (responseAs[JObject] \ "id").extract[String]
       val vehicle = getVehicleFromManager(id)
-      vehicle.regNumber shouldEqual regNumber
-      vehicle.color shouldEqual color
+//      vehicle.vrn shouldEqual regNumber
     }
   }
 
   it should "return existing vehicle" in {
     val regNumber = "456"
     val color = "Navajo white"
-    val vehicle = createVehicleInManager(regNumber, color)
+    val vehicle = createVehicleInManager(regNumber)
     Get(s"/vehicles/" + vehicle.id) ~> vehicleRoute ~> check {
       response.status shouldBe StatusCodes.OK
       val responseJson = responseAs[JObject]
       (responseJson \ "regNumber").extract[String] shouldEqual regNumber
-      (responseJson \ "color").extract[String] shouldEqual color
     }
   }
 
   it should "remove vehicle" in {
-    val vehicle = createVehicleInManager("123", "Pastel pink")
+    val vehicle = createVehicleInManager("123")
     Delete("/vehicles/" + vehicle.id) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
       response.status shouldBe StatusCodes.NoContent
       val emptyVehicleFuture = (vehicleAggregateManager ? GetVehicle(vehicle.id))
@@ -86,17 +83,7 @@ class VehicleRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers wi
     Post(s"/vehicles/${vehicle.id}/regnumber", Map("value" -> newRegNumber)) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
       response.status shouldBe StatusCodes.OK
       val updatedVehicle = getVehicleFromManager(vehicle.id)
-      updatedVehicle.regNumber shouldEqual newRegNumber
-    }
-  }
-
-  it should "update vehicle's color" in {
-    val vehicle = createVehicleInManager("123", "Cherry blossom pink")
-    val newColor = "Atomic tangerine"
-    Post(s"/vehicles/${vehicle.id}/color", Map("value" -> newColor)) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
-      response.status shouldBe StatusCodes.OK
-      val updatedVehicle = getVehicleFromManager(vehicle.id)
-      updatedVehicle.color shouldEqual newColor
+//      updatedVehicle.vrn shouldEqual newRegNumber
     }
   }
 
@@ -105,8 +92,8 @@ class VehicleRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers wi
     Await.result(vehicleFuture, 2.seconds)
   }
 
-  private def createVehicleInManager(regNumber: String, color: String) = {
-    val vehicleFuture = (vehicleAggregateManager ? RegisterVehicle(regNumber, color)).mapTo[Vehicle]
+  private def createVehicleInManager(regNumber: String) = {
+    val vehicleFuture = (vehicleAggregateManager ? RegisterVehicle(regNumber)).mapTo[Vehicle]
     Await.result(vehicleFuture, 2.seconds)
   }
 

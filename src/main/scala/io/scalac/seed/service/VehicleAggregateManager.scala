@@ -8,10 +8,10 @@ object VehicleAggregateManager {
 
   import AggregateManager._
 
-  case class RegisterVehicle(regNumber: String, color: String) extends Command
+  case class RegisterVehicle(regNumber: String) extends Command
   case class GetVehicle(id: String) extends Command
-  case class UpdateRegNumber(id: String, regNumber: String) extends Command
-  case class UpdateColor(id: String, color: String) extends Command
+  case class UpdateRegNumber(id: String, regNumber: String, dateFrom: String) extends Command
+  case class UpdateKeeper(id: String, keeperUri: String, dateFrom: String) extends Command
   case class DeleteVehicle(id: String) extends Command
   
   def props: Props = Props(new VehicleAggregateManager)
@@ -24,15 +24,15 @@ class VehicleAggregateManager extends AggregateManager {
   import VehicleAggregate._
 
   def processCommand = {
-    case RegisterVehicle(rn, col) =>
-      val id = UUID.randomUUID().toString()
-      processAggregateCommand(id, Initialize(rn, col))
+    case RegisterVehicle(rn) =>
+      val id = UUID.randomUUID().toString
+      processAggregateCommand(id, Initialize(rn))
     case GetVehicle(id) =>
       processAggregateCommand(id, GetState)
-    case UpdateRegNumber(id, regNumber) =>
-      processAggregateCommand(id, ChangeRegNumber(regNumber))
-    case UpdateColor(id, color) =>
-      processAggregateCommand(id, ChangeColor(color))
+    case UpdateRegNumber(id, regNumber, dateFrom) =>
+      processAggregateCommand(id, AssignVrn(regNumber, dateFrom))
+    case UpdateKeeper(id, keeperUri, dateFrom) =>
+      processAggregateCommand(id, AssignKeeper(keeperUri, dateFrom))
     case DeleteVehicle(id) =>
       processAggregateCommand(id, Remove)
   }

@@ -7,15 +7,17 @@ object VehicleAggregate {
 
   import AggregateRoot._
 
-  case class Vehicle(id: String, regNumber: String = "", color: String = "") extends State
+  case class Vehicle(id: String, keeperList: List[Keeper], vrnList: List[Vrn]) extends State
+  case class Keeper(keeperUri: String, dateFrom: String, dateTo: String)
+  case class Vrn(vrn: String, dateFrom: String, dateTo: String)
 
-  case class Initialize(regNumber: String, color: String) extends Command
-  case class ChangeRegNumber(newRegNumber: String) extends Command
-  case class ChangeColor(newColor: String) extends Command
+  case class Initialize(vrn: String) extends Command
+  case class AssignVrn(newVrn: String, dateFrom: String) extends Command
+  case class AssignKeeper(newKeeperUri: String, dateFrom: String) extends Command
 
-  case class VehicleInitialized(regNumber: String, color: String) extends Event
-  case class RegNumberChanged(regNumber: String) extends Event
-  case class ColorChanged(color: String) extends Event
+  case class VehicleInitialized(vrn: String) extends Event
+  case class VrnAssigned(vrn: String, dateFrom: String) extends Event
+  case class KeeperAssigned(keeperUri: String, dateFrom: String) extends Event
   case object VehicleRemoved extends Event
 
   def props(id: String): Props = Props(new VehicleAggregate(id))
@@ -26,39 +28,53 @@ class VehicleAggregate(id: String) extends AggregateRoot {
   import AggregateRoot._
   import VehicleAggregate._
 
-  override def persistenceId = id
+  override def persistenceId = "vehicle-" + id
 
-  override def updateState(evt: AggregateRoot.Event): Unit = evt match {
-    case VehicleInitialized(reg, col) =>
+  override def updateState(evt: Event): Unit = evt match {
+
+    case VehicleInitialized(reg) =>
       context.become(created)
-      state = Vehicle(id, reg, col)
-    case RegNumberChanged(reg) => state match {
-      case s: Vehicle => state = s.copy(regNumber = reg) 
+      state = Vehicle(id, keeperList = List(), vrnList = List())
+
+    case VrnAssigned(reg, dateFrom) => state match {
+      case s: Vehicle =>
+        val newVrnList = s.vrnList ::: List(Vrn(reg, dateFrom, null))
+        state = s.copy(vrnList = newVrnList)
       case _ => //nothing
     }
-    case ColorChanged(col) => state match { 
-      case s: Vehicle => state = s.copy(color = col)
+
+    case KeeperAssigned(keeperUri, dateFrom) => state match {
+      case s: Vehicle =>
+        val newKeeperList = s.keeperList ::: List(Keeper(keeperUri, dateFrom, null))
+        state = s.copy(keeperList = newKeeperList)
       case _ => //nothing
     }
+
     case VehicleRemoved =>
       context.become(removed)
       state = Removed
+
+    case _ =>
+      println("Unknown message: ")
   }
 
   val initial: Receive = {
-    case Initialize(reg, col) =>
-      persist(VehicleInitialized(reg, col))(afterEventPersisted)
+    case Initialize(reg) =>
+      persist(VehicleInitialized(reg))(afterEventPersisted)
     case GetState =>
       respond()
     case KillAggregate =>
       context.stop(self)
+    case PersistenceFailure(payload, sequence, cause) =>
+      println(cause.getMessage)
+      println(cause.printStackTrace())
   }
   
   val created: Receive = {
-    case ChangeRegNumber(reg) =>
-      persist(RegNumberChanged(reg))(afterEventPersisted)
-    case ChangeColor(color) => 
-      persist(ColorChanged(color))(afterEventPersisted)
+    case AssignVrn(reg, dateFrom) =>
+      persist(VrnAssigned(reg, dateFrom))(afterEventPersisted)
+    case AssignKeeper(keeperUri, dateFrom) =>
+      persist(KeeperAssigned(keeperUri, dateFrom))(afterEventPersisted)
     case Remove =>
       persist(VehicleRemoved)(afterEventPersisted)
     case GetState =>

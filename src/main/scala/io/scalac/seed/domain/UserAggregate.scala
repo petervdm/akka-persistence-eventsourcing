@@ -27,7 +27,7 @@ class UserAggregate(id: String) extends AggregateRoot {
 
   override def persistenceId = id
 
-  override def updateState(evt: AggregateRoot.Event): Unit = evt match {
+  override def updateState(evt: Event): Unit = evt match {
     case UserInitialized(pass) =>
       context.become(created)
       state = User(id, pass)

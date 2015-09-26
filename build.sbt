@@ -4,7 +4,7 @@ version := "1.0.0"
 
 organization := "io.scalac"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.10.5"
 
 resolvers ++= Seq(
   "snapshots"           at "http://oss.sonatype.org/content/repositories/snapshots",
@@ -23,7 +23,7 @@ parallelExecution in Test := false
 
 libraryDependencies ++= {
   val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.5"
+  val akkaVersion = "2.3.12"
   Seq(
     "org.slf4j"               %   "slf4j-api"       % "1.7.7",
     "ch.qos.logback"          %   "logback-core"    % "1.1.2",
@@ -39,9 +39,10 @@ libraryDependencies ++= {
     "com.typesafe.akka"       %%  "akka-actor"      % akkaVersion,
     "com.typesafe.akka"       %%  "akka-slf4j"      % akkaVersion,
     "com.typesafe.akka"       %%  "akka-testkit"    % akkaVersion % "test",
-    "com.typesafe.akka"       %%  "akka-persistence-experimental" % akkaVersion,
+    "com.typesafe.akka"       %%  "akka-persistence-experimental" % "2.3.13",
     "org.scalatest"           %%  "scalatest"       % "2.2.1" % "test",
     "io.spray"                %%  "spray-testkit"   % "1.3.1" % "test",
-    "com.github.t3hnar"       %%  "scala-bcrypt"    % "2.4"
+    "com.github.t3hnar"       %%  "scala-bcrypt"    % "2.4",
+    "com.geteventstore" % "akka-persistence-eventstore_2.10" % "2.0.2"
   )
 }
