@@ -4,7 +4,7 @@ akka-persistence-event-sourcing
 ### Dependencies
 #### Eventstore (geteventstore.com)
 
-```
+```bash
 cd docker
 docker build -t petervdm/eventstore:3.2.2 .
 docker run --name eventstore -d -p 2113:2113 -p 1113:1113 petervdm/eventstore:3.2.2
