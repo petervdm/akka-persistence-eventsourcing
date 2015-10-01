@@ -78,7 +78,7 @@ class VehicleRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers wi
   }
 
   it should "update vehicle's regNumber" in {
-    val vehicle = createVehicleInManager("123", "Persian indigo")
+    val vehicle = createVehicleInManager("123")
     val newRegNumber = "456"
     Post(s"/vehicles/${vehicle.id}/regnumber", Map("value" -> newRegNumber)) ~> addCredentials(credentials) ~> vehicleRoute ~> check {
       response.status shouldBe StatusCodes.OK
