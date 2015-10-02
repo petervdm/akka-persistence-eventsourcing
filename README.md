@@ -1,3 +1,5 @@
+[ ![Codeship Status for petervdm/akka-persistence-eventsourcing](https://codeship.com/projects/39c3bae0-4b21-0133-b315-7236a2d50232/status?branch=master)](https://codeship.com/projects/106141)
+
 akka-persistence-event-sourcing
 ==============================
 
