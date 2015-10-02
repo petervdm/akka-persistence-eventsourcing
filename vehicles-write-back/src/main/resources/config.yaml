@@ -1,0 +1,28 @@
+server:
+    applicationConnectors:
+      - type: http
+        port: 9100
+    adminConnectors:
+      - type: http
+        port: 9101
+
+template: Hello, %s!
+defaultName: Stranger
+
+logging:
+  level: INFO
+  loggers:
+     org.eclipse.jetty: ERROR
+     org.apache.http: ERROR
+     com.yammer.metrics: ERROR
+     io.dropwizard: WARN
+  appenders:
+    - type: console
+      threshold: TRACE
+    - type: file
+      threshold: ALL
+      currentLogFilename: ./logs/vehicles-write-back.log
+      archivedLogFilenamePattern: ./logs/vehicles-write-back-%d.log.gz
+      archivedFileCount: 30
+      timeZone: UTC
+      logFormat: "%date %level [%thread] %logger [%file:%line] %msg%n%ex.%n"
