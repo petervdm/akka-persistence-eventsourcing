@@ -31,7 +31,7 @@ class VehicleAggregateManagerSpec extends FlatSpec with BeforeAndAfterAll {
     
     val initialSize = manager.children.size
     
-    manager ! RegisterVehicle(regNumber = "reg1", color = "col1")
+    manager ! RegisterVehicle(regNumber = "reg1")
     
     val finalSize = manager.children.size
     
@@ -42,14 +42,14 @@ class VehicleAggregateManagerSpec extends FlatSpec with BeforeAndAfterAll {
     val manager = TestActorRef(VehicleAggregateManager.props)
 
     //create a new vehicle
-    val future = (manager ? RegisterVehicle(regNumber = "reg1", color = "col1")).mapTo[Vehicle]
+    val future = (manager ? RegisterVehicle(regNumber = "reg1")).mapTo[Vehicle]
     
     val Vehicle(id, _, _) = Await.result(future, 2 seconds)
 
     val initialSize = manager.children.size
     
     //update the vehicle
-    manager ! UpdateColor(id, "col2")
+    manager ! UpdateKeeper(id, "col2", "")
     
     //check children size
     val finalSize = manager.children.size
@@ -63,7 +63,7 @@ class VehicleAggregateManagerSpec extends FlatSpec with BeforeAndAfterAll {
     //create more vehicles than manager should keep
     implicit val timeout = Timeout(5 seconds)
     val futures = (0 to AggregateManager.maxChildren * 2).foldLeft(Seq[Future[Vehicle]]()) { (futures, _) =>
-      futures :+ (manager ? RegisterVehicle(regNumber = "reg1", color = "col1")).mapTo[Vehicle]
+      futures :+ (manager ? RegisterVehicle(regNumber = "reg1")).mapTo[Vehicle]
     }
 
     val future = Future sequence futures

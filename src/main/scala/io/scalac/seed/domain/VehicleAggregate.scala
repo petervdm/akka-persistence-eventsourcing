@@ -34,7 +34,7 @@ class VehicleAggregate(id: String) extends AggregateRoot {
 
     case VehicleInitialized(reg) =>
       context.become(created)
-      state = Vehicle(id, keeperList = List(), vrnList = List())
+      state = Vehicle(id, keeperList = List(), vrnList = List(Vrn(reg, "2015-01-01", "")))
 
     case VrnAssigned(reg, dateFrom) => state match {
       case s: Vehicle =>
